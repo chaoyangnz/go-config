@@ -51,7 +51,7 @@ func setupSentry(sentryDsn string) error {
 	// TODO: Meta-tag for environment
 	// Some meta-tags
 	tags := map[string]string{
-		// TODO: Pick a better name, as this maps to "SECRETS_APP":
+		// TODO: Pick a better name, as this maps to "${CONFIG}_APP":
 		"app": viper.GetString("app"),
 	}
 

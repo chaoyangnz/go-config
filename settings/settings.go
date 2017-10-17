@@ -13,15 +13,11 @@ var initConfigDone = false
 // ReadConfig uses Viper to read the configuration from .config.* files or Env Vars
 // TODO:  list config items
 func ReadConfig() {
-	viper.BindEnv("debug")
-	viper.BindEnv("base")
-
-	viper.BindEnv("application.name", "APPLICATION_NAME")
-	viper.BindEnv("application.environment", "ENVIRONMENT")
-
 	// This means any "." chars in a FQ config name will be replaced with "_"
-	// e.g. "sentry.dsn" --> "$CONFIG_SENTRY_DSN" instead of "$CONFIG_SENTRY.DSN"
+	// e.g. "sentry.dsn" --> "$SENTRY_DSN" instead of "$SENTRY.DSN" (which won't work)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	viper.BindEnv("debug")
 
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
