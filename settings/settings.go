@@ -8,6 +8,8 @@ import (
 )
 
 var (
+	// ConfigFile is the default config file name
+	ConfigFile = ""
 	// EnvPrefix allows you to add a Viper "EnvPrefix" to config env-vars
 	EnvPrefix = ""
 
@@ -26,6 +28,9 @@ func ReadConfig() {
 	}
 	viper.BindEnv("debug")
 
+	if ConfigFile != "" {
+		viper.SetConfigName(ConfigFile)
+	}
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
 
