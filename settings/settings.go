@@ -1,3 +1,12 @@
+/*
+Package settings manages reading config from a config file or env vars.
+
+Supported Settings
+
+- debug ($DEBUG) -- enables debug mode.
+
+Note: other packages may add other settings.
+*/
 package settings
 
 import (
