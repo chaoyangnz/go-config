@@ -8,7 +8,12 @@ import (
 	"strings"
 )
 
-var initConfigDone = false
+var (
+	// EnvPrefix allows you to add a Viper "EnvPrefix" to config env-vars
+	EnvPrefix = ""
+
+	initConfigDone = false
+)
 
 // ReadConfig uses Viper to read the configuration from .config.* files or Env Vars
 // TODO:  list config items
@@ -17,6 +22,9 @@ func ReadConfig() {
 	// e.g. "sentry.dsn" --> "$SENTRY_DSN" instead of "$SENTRY.DSN" (which won't work)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
+	if EnvPrefix != "" {
+		viper.SetEnvPrefix(EnvPrefix)
+	}
 	viper.BindEnv("debug")
 
 	viper.AddConfigPath("$HOME")
