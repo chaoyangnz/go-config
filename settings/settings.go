@@ -55,3 +55,10 @@ func AddConfigItems(configItems []string) {
 		viper.BindEnv(item)
 	}
 }
+
+// ApplyWith gets a setting from viper, and passes it to a closure
+func ApplyWith(item string, f func(interface{})) {
+	if viper.IsSet(item) {
+		f(viper.Get(item))
+	}
+}

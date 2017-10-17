@@ -41,6 +41,11 @@ func AddConfigItems(configItems []string) {
 	settings.AddConfigItems(configItems)
 }
 
+// ApplyWith passes the configItems through to settings.ApplyWith()
+func ApplyWith(item string, f func(interface{})) {
+	settings.ApplyWith(item, f)
+}
+
 func readConfig() {
 	// This should make it safe to rerun a few times
 	if !initConfigDone {
