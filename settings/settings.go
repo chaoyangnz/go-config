@@ -1,11 +1,10 @@
 package settings
 
 import (
+	"strings"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-
-	"os"
-	"strings"
 )
 
 var (
