@@ -27,6 +27,7 @@ func ReadConfig() {
 		viper.SetEnvPrefix(EnvPrefix)
 	}
 	viper.BindEnv("debug")
+	viper.BindEnv("dry_run")
 
 	if ConfigFile != "" {
 		viper.SetConfigName(ConfigFile)
@@ -40,6 +41,12 @@ func ReadConfig() {
 	} else {
 		log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Error(err)
 	}
+}
+
+// DryRun says whether the dry_run config has been set
+func DryRun() bool {
+	// Note: Not being set should count as "false"
+	return viper.GetBool("dry_run")
 }
 
 // AddConfigItems adds a new configuration item, and makes it overridable by env vars

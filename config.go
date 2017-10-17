@@ -1,6 +1,8 @@
 package config
 
 import (
+	log "github.com/sirupsen/logrus"
+
 	"github.com/mexisme/go-config/logging"
 	"github.com/mexisme/go-config/settings"
 )
@@ -22,7 +24,17 @@ func init() {
 func ImportMe() {
 }
 
-// AddConfigItems passes the configItems through to config.AddConfigItems()
+// DryRun says whether the dry_run config has been set
+func DryRun(reason string, args ...interface{}) bool {
+	dryRun := settings.DryRun()
+	if dryRun {
+		log.Infof("DRY-RUN MODE: "+reason, args...)
+	}
+
+	return dryRun
+}
+
+// AddConfigItems passes the configItems through to settings.AddConfigItems()
 func AddConfigItems(configItems []string) {
 	// Need to ensure the system has been configured at least once!
 	readConfig() // TODO: Viper dynamically reads -- this may not be needed.
