@@ -1,12 +1,22 @@
 package logging
 
 import (
+	"fmt"
+	"os"
 	"time"
 
-	"github.com/mexisme/go-config/version"
 	"github.com/evalphobia/logrus_sentry"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+)
+
+var (
+	// ApplicationName allows you override the Application Name for logging purposes
+	ApplicationName = ""
+	// ApplicationEnvironment allows you to log the environment:
+	ApplicationEnvironment = ""
+	// ApplicationRelease allows you to log the release:
+	ApplicationRelease = ""
 )
 
 // Configure set-ups the Logrus library -- debug mode, etc
@@ -28,8 +38,7 @@ func Configure() {
 		log.Panicf("Log format %#v not supported.", loggingFormat)
 	}
 
-	// TODO: Should this be a Debug message?
-	log.Infof("## %#v release %v ##", version.Application(), version.Release())
+	logApplicationInfo()
 
 	if viper.GetBool("debug") {
 		log.SetLevel(log.DebugLevel)
@@ -43,6 +52,25 @@ func Configure() {
 	}
 
 	// viper.Debug()
+}
+
+func logApplicationInfo() {
+	appName := ApplicationName
+	appVer := ApplicationRelease
+	appEnv := ApplicationEnvironment
+
+	if appName == "" {
+		appName = os.Args[0]
+	}
+	if appVer != "" {
+		appVer = fmt.Sprintf(" release %v", appVer)
+	}
+	if appEnv != "" {
+		appEnv = fmt.Sprintf(" (in %v)", appEnv)
+	}
+
+	// TODO: Should this be a Debug message?
+	log.Infof("## %#v%v%v ##", appName, appVer, appEnv)
 }
 
 func setupSentry(sentryDsn string) error {
