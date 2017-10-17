@@ -1,0 +1,11 @@
+package: github.com/mexisme/go-config
+import:
+- package: github.com/evalphobia/logrus_sentry
+  version: ^0.4.2
+- package: github.com/sirupsen/logrus
+  version: ^1.0.3
+- package: github.com/spf13/viper
+testImport:
+- package: github.com/onsi/ginkgo
+  version: ^1.4.0
+- package: github.com/onsi/gomega
