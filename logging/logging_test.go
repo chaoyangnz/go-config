@@ -41,4 +41,46 @@ var _ = Describe("config/logging", func() {
 			Expect(buf.String()).To(MatchRegexp("msg=.*APPL.*(in ENV)"))
 		})
 	})
+
+	Describe("debug setting", func() {
+		var buf *bytes.Buffer
+		BeforeEach(func() {
+			buf = new(bytes.Buffer)
+			log.SetOutput(buf)
+
+			viper.Set("logging.format", "text")
+		})
+
+		It("is switched-off correctly from '0'", func() {
+			viper.Set("debug", 0)
+			New().SetFromConfig().Init()
+
+			log.Debug("Out it comes!")
+			Expect(buf.String()).NotTo(MatchRegexp("Out it comes!"))
+		})
+
+		It("is switched-on correctly from '1'", func() {
+			viper.Set("debug", 1)
+			New().SetFromConfig().Init()
+
+			log.Debug("Out it comes!")
+			Expect(buf.String()).To(MatchRegexp("Out it comes!"))
+		})
+
+		It("is switched-off correctly from ''", func() {
+			viper.Set("debug", "")
+			New().SetFromConfig().Init()
+
+			log.Debug("Out it comes!")
+			Expect(buf.String()).NotTo(MatchRegexp("Out it comes!"))
+		})
+
+		It("is switched-on correctly from 'Hello'", func() {
+			viper.Set("debug", "Hello")
+			New().SetFromConfig().Init()
+
+			log.Debug("Out it comes!")
+			Expect(buf.String()).To(MatchRegexp("Out it comes!"))
+		})
+	})
 })
