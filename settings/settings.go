@@ -21,7 +21,7 @@ const (
 	// ConfigItemDebug defines the Viper config item for running in debug mode
 	ConfigItemDebug = "debug"
 	// ConfigItemDryRun defines the Viper config item for enabling dry-run mode
-	ConfigItemDryRun  = "dry_run"
+	ConfigItemDryRun = "dry_run"
 )
 
 // ReadConfig uses Viper to read the configuration from .config.* files or Env Vars

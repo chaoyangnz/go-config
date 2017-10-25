@@ -13,18 +13,18 @@ import (
 )
 
 const (
-	configItemAppName = "application.name"
-	configItemAppEnv = "application.environment"
-	configItemFormat = "logging.format"
+	configItemAppName   = "application.name"
+	configItemAppEnv    = "application.environment"
+	configItemFormat    = "logging.format"
 	configItemSentryDsn = "logging.sentry.dsn"
 )
 
 // Config contains the details for configuring Logging
 type Config struct {
-	appName string
-	appEnv string
+	appName    string
+	appEnv     string
 	appRelease string
-	sentryDsn string
+	sentryDsn  string
 }
 
 // Logging is a singleton for managing logging
