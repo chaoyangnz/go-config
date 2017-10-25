@@ -35,6 +35,7 @@ func New() *Config {
 	return &Config{}
 }
 
+// SetFromConfig sets App name and env, Log format, debug and Sentry DSN from config settings
 func (s *Config) SetFromConfig() *Config {
 	settings.AddConfigItems([]string{
 		configItemAppName, configItemAppEnv,
@@ -62,25 +63,25 @@ func (s *Config) SetFromConfig() *Config {
 	return s
 }
 
-// SetAppName TODO
+// SetAppName sets the App name (for logging)
 func (s *Config) SetAppName(appName string) *Config {
 	s.appName = appName
 	return s
 }
 
-// SetAppEnv TODO
+// SetAppEnv sets the App environment (for logging)
 func (s *Config) SetAppEnv(appEnv string) *Config {
 	s.appEnv = appEnv
 	return s
 }
 
-// SetAppRelease TODO
+// SetAppRelease sets the App release / version (for logging)
 func (s *Config) SetAppRelease(appRelease string) *Config {
 	s.appRelease = appRelease
 	return s
 }
 
-// SetDebug TODO
+// SetDebug enables/disables debug logging
 func (s *Config) SetDebug(debug bool) *Config {
 	if debug {
 		log.SetLevel(log.DebugLevel)
@@ -93,7 +94,7 @@ func (s *Config) SetDebug(debug bool) *Config {
 	return s
 }
 
-// SetFormat TODO
+// SetFormat sets the log-output format:  either "text" or "json"
 func (s *Config) SetFormat(loggingFormat string) *Config {
 	switch loggingFormat {
 	case "":
@@ -113,14 +114,13 @@ func (s *Config) SetFormat(loggingFormat string) *Config {
 	return s
 }
 
-// SetLoggingSentryDsn TODO
+// SetLoggingSentryDsn sets the DSN for capturing errors on Sentry.io
 func (s *Config) SetSentryDsn(sentryDsn string) *Config {
 	s.sentryDsn = sentryDsn
 	return s
 }
 
-// Init set-ups the Logrus library -- debug mode, etc
-// Currently set-up via Viper
+// Init set-ups logging for the Logrus library, incl. App name, environment and release, and Sentry DSN
 func (s *Config) Init() {
 	appName := s.appName
 	appRelease := s.appRelease
