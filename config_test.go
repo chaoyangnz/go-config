@@ -9,6 +9,6 @@ import (
 
 var _ = Describe("config", func() {
 	It("compiles", func() {
-		ImportMe()
+		Init(Config{})
 	})
 })

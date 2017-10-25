@@ -16,39 +16,37 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	// ConfigFile is the default config file name
-	ConfigFile = ""
-	// EnvPrefix allows you to add a Viper "EnvPrefix" to config env-vars
-	EnvPrefix = ""
-
-	initConfigDone = false
+const (
+	// ConfigItemDebug defines the Viper config item for running in debug mode
+	ConfigItemDebug = "debug"
 )
 
 // ReadConfig uses Viper to read the configuration from .config.* files or Env Vars
+// `configFile` is the default config file name
+// `envPrefix` allows you to add a Viper "EnvPrefix" to config env-vars
 // TODO:  list config items
-func ReadConfig() {
+func ReadConfig(configFile, envPrefix string) {
 	// This means any "." chars in a FQ config name will be replaced with "_"
 	// e.g. "sentry.dsn" --> "$SENTRY_DSN" instead of "$SENTRY.DSN" (which won't work)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	if EnvPrefix != "" {
-		viper.SetEnvPrefix(EnvPrefix)
+	if envPrefix != "" {
+		viper.SetEnvPrefix(envPrefix)
 	}
-	viper.BindEnv("debug")
+	viper.BindEnv(ConfigItemDebug)
 	viper.BindEnv("dry_run")
 
-	if ConfigFile != "" {
-		viper.SetConfigName(ConfigFile)
-	}
-	viper.AddConfigPath("$HOME")
-	viper.AddConfigPath(".")
+	if configFile != "" {
+		viper.SetConfigName(configFile)
+		viper.AddConfigPath("$HOME")
+		viper.AddConfigPath(".")
 
-	if err := viper.ReadInConfig(); err == nil {
-		log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Debug("Using file")
+		if err := viper.ReadInConfig(); err == nil {
+			log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Debug("Using file")
 
-	} else {
-		log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Error(err)
+		} else {
+			log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Error(err)
+		}
 	}
 }
 
