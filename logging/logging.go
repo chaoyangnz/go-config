@@ -5,25 +5,97 @@ import (
 	"os"
 	"time"
 
+	"github.com/mexisme/go-config/settings"
+
 	"github.com/evalphobia/logrus_sentry"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
-var (
-	// ApplicationName allows you override the Application Name for logging purposes
-	ApplicationName = ""
-	// ApplicationEnvironment allows you to log the environment:
-	ApplicationEnvironment = ""
-	// ApplicationRelease allows you to log the release:
-	ApplicationRelease = ""
+const (
+	configItemAppName = "application.name"
+	configItemAppEnv = "application.environment"
+	configItemFormat = "logging.format"
+	configItemSentryDsn = "logging.sentry.dsn"
 )
 
-// Configure set-ups the Logrus library -- debug mode, etc
-// Currently set-up via Viper
-func Configure() {
+// Config contains the details for configuring Logging
+type Config struct {
+	appName string
+	appEnv string
+	appRelease string
+	sentryDsn string
+}
+
+// Logging is a singleton for managing logging
+var Logging *Config
+
+// New creates a new struct for managing logging
+func New() *Config {
+	return &Config{appName: os.Args[0]}
+}
+
+func (s *Config) SetFromConfig() *Config {
+	settings.AddConfigItems([]string{
+		configItemAppName, configItemAppEnv,
+		configItemFormat, configItemSentryDsn,
+	})
+
+	settings.ApplyWith(configItemAppName, func(val interface{}) {
+		s.SetAppName(val.(string))
+	})
+	settings.ApplyWith(configItemAppEnv, func(val interface{}) {
+		s.SetAppEnv(val.(string))
+	})
+
 	// We do this before setting debug mode, to help-out the log aggregators:
-	switch loggingFormat := viper.GetString("logging.format"); loggingFormat {
+	settings.ApplyWith(configItemFormat, func(val interface{}) {
+		s.SetFormat(val.(string))
+	})
+	settings.ApplyWith(settings.ConfigItemDebug, func(val interface{}) {
+		s.SetDebug(val.(bool))
+	})
+	settings.ApplyWith(configItemSentryDsn, func(val interface{}) {
+		s.SetSentryDsn(val.(string))
+	})
+
+	return s
+}
+
+// SetAppName TODO
+func (s *Config) SetAppName(appName string) *Config {
+	s.appName = appName
+	return s
+}
+
+// SetAppEnv TODO
+func (s *Config) SetAppEnv(appEnv string) *Config {
+	s.appEnv = appEnv
+	return s
+}
+
+// SetAppRelease TODO
+func (s *Config) SetAppRelease(appRelease string) *Config {
+	s.appRelease = appRelease
+	return s
+}
+
+// SetDebug TODO
+func (s *Config) SetDebug(debug bool) *Config {
+	if debug {
+		log.SetLevel(log.DebugLevel)
+		log.Debug("Debug mode enabled")
+
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+
+	return s
+}
+
+// SetFormat TODO
+func (s *Config) SetFormat(loggingFormat string) *Config {
+	switch loggingFormat {
 	case "":
 		fallthrough
 
@@ -38,42 +110,39 @@ func Configure() {
 		log.Panicf("Log format %#v not supported.", loggingFormat)
 	}
 
-	logApplicationInfo()
-
-	if viper.GetBool("debug") {
-		log.SetLevel(log.DebugLevel)
-		log.Debug("Debug mode enabled")
-	}
-
-	if sentryDsn := viper.GetString("logging.sentry.dsn"); sentryDsn != "" {
-		if err := setupSentry(sentryDsn); err != nil {
-			log.Error(err)
-		}
-	}
-
-	// viper.Debug()
+	return s
 }
 
-func logApplicationInfo() {
-	appName := ApplicationName
-	appVer := ApplicationRelease
-	appEnv := ApplicationEnvironment
+// SetLoggingSentryDsn TODO
+func (s *Config) SetSentryDsn(sentryDsn string) *Config {
+	s.sentryDsn = sentryDsn
+	return s
+}
 
-	if appName == "" {
-		appName = os.Args[0]
-	}
-	if appVer != "" {
-		appVer = fmt.Sprintf(" release %v", appVer)
+// Init set-ups the Logrus library -- debug mode, etc
+// Currently set-up via Viper
+func (s *Config) Init() {
+	appRelease := s.appRelease
+	appEnv := s.appEnv
+
+	if appRelease != "" {
+		appRelease = fmt.Sprintf(" release %v", appRelease)
 	}
 	if appEnv != "" {
 		appEnv = fmt.Sprintf(" (in %v)", appEnv)
 	}
 
 	// TODO: Should this be a Debug message?
-	log.Infof("## %#v%v%v ##", appName, appVer, appEnv)
+	log.Infof("## %#v%v%v ##", s.appName, appRelease, appEnv)
+
+	if s.sentryDsn != "" {
+		if err := s.setupSentry(s.sentryDsn); err != nil {
+			log.Error(err)
+		}
+	}
 }
 
-func setupSentry(sentryDsn string) error {
+func (s *Config) setupSentry(sentryDsn string) error {
 	log.WithFields(log.Fields{"sentry.dsn": sentryDsn}).Debug("Configuring connection to Sentry.io")
 
 	// TODO: Meta-tag for environment
@@ -96,15 +165,15 @@ func setupSentry(sentryDsn string) error {
 		return err
 	}
 
-	if ApplicationRelease != "" {
+	if s.appRelease != "" {
 		// Set the Sentry "release" version:
-		log.WithFields(log.Fields{"release": ApplicationRelease}).Debug("Setting release version in Sentry")
-		hook.SetRelease(ApplicationRelease)
+		log.WithFields(log.Fields{"release": s.appRelease}).Debug("Setting release version in Sentry")
+		hook.SetRelease(s.appRelease)
 	}
-	if ApplicationEnvironment != "" {
+	if s.appEnv != "" {
 		// Set the Sentry "environment":
-		log.WithFields(log.Fields{"environment": ApplicationEnvironment}).Debug("Setting environment in Sentry")
-		hook.SetEnvironment(ApplicationEnvironment)
+		log.WithFields(log.Fields{"environment": s.appEnv}).Debug("Setting environment in Sentry")
+		hook.SetEnvironment(s.appEnv)
 	}
 
 	hook.StacktraceConfiguration.Enable = true

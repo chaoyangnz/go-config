@@ -7,21 +7,33 @@ import (
 	"github.com/mexisme/go-config/settings"
 )
 
-var (
-	// We don't want to try to reinitialise the config more than once
-	initConfigDone = false
-	// We don't want to try to reinitialise the logging more than once
-	logConfigDone = false
-)
+type Config struct {
+	File string
+	EnvPrefix string
+	Name string
+	Environment string
+	Release string
+	LoggingFormat string
+	LoggingSentryDsn string
 
-func init() {
-	readConfig()
-	configLogging()
+	Debug bool
+	FromConfig bool
+
+	// We don't want to try to reinitialise the config more than once
+	initConfigDone bool
+	// We don't want to try to reinitialise the logging more than once
+	logConfigDone bool
 }
 
-// ImportMe is to allow other packages to easily depend on this one,
+var config Config
+
+// Init is to allow other packages to easily depend on this one,
 // since most of the important logic is in init()
-func ImportMe() {
+func Init(initConfig Config) {
+	config = initConfig
+
+	config.read()
+	config.logging()
 }
 
 // DryRun says whether the dry_run config has been set
@@ -37,7 +49,7 @@ func DryRun(reason string, args ...interface{}) bool {
 // AddConfigItems passes the configItems through to settings.AddConfigItems()
 func AddConfigItems(configItems []string) {
 	// Need to ensure the system has been configured at least once!
-	readConfig() // TODO: Viper dynamically reads -- this may not be needed.
+	config.read() // TODO: Viper dynamically reads -- this may not be needed.
 	settings.AddConfigItems(configItems)
 }
 
@@ -46,20 +58,29 @@ func ApplyWith(item string, f func(interface{})) {
 	settings.ApplyWith(item, f)
 }
 
-func readConfig() {
+func (s *Config) read() {
 	// This should make it safe to rerun a few times
-	if !initConfigDone {
-		settings.ReadConfig()
-		initConfigDone = true
+	if !s.initConfigDone {
+		settings.ReadConfig(s.File, s.EnvPrefix)
+		s.initConfigDone = true
 	}
 }
 
-func configLogging() {
-	readConfig()
+func (s *Config) logging() {
+	s.read()
 
 	// This should make it safe to rerun a few times
-	if !logConfigDone {
-		logging.Configure()
-		logConfigDone = true
+	if !s.logConfigDone {
+		logConfig := logging.New()
+		logConfig.SetAppName(s.Name).SetAppEnv(s.Environment).SetAppRelease(s.Release)
+		logConfig.SetFormat(s.LoggingFormat).SetSentryDsn(s.LoggingSentryDsn)
+
+		if s.FromConfig {
+			logConfig.SetFromConfig()
+		}
+
+		logConfig.Init()
+
+		s.logConfigDone = true
 	}
 }
