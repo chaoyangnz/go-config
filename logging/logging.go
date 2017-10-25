@@ -32,7 +32,7 @@ var Logging *Config
 
 // New creates a new struct for managing logging
 func New() *Config {
-	return &Config{appName: os.Args[0]}
+	return &Config{}
 }
 
 func (s *Config) SetFromConfig() *Config {
@@ -122,9 +122,13 @@ func (s *Config) SetSentryDsn(sentryDsn string) *Config {
 // Init set-ups the Logrus library -- debug mode, etc
 // Currently set-up via Viper
 func (s *Config) Init() {
+	appName := s.appName
 	appRelease := s.appRelease
 	appEnv := s.appEnv
 
+	if appName == "" {
+		appName = os.Args[0]
+	}
 	if appRelease != "" {
 		appRelease = fmt.Sprintf(" release %v", appRelease)
 	}
@@ -133,7 +137,7 @@ func (s *Config) Init() {
 	}
 
 	// TODO: Should this be a Debug message?
-	log.Infof("## %#v%v%v ##", s.appName, appRelease, appEnv)
+	log.Infof("## %#v%v%v ##", appName, appRelease, appEnv)
 
 	if s.sentryDsn != "" {
 		if err := s.setupSentry(s.sentryDsn); err != nil {
