@@ -54,7 +54,7 @@ func (s *Config) SetFromConfig() *Config {
 		s.SetFormat(val.(string))
 	})
 	settings.ApplyWith(settings.ConfigItemDebug, func(val interface{}) {
-		s.SetDebug(val.(bool))
+		s.SetDebug(convertToBool(val))
 	})
 	settings.ApplyWith(configItemSentryDsn, func(val interface{}) {
 		s.SetSentryDsn(val.(string))
@@ -191,4 +191,32 @@ func (s *Config) setupSentry(sentryDsn string) error {
 	log.Info("Sentry enabled")
 
 	return nil
+}
+
+func convertToBool(val interface{}) bool {
+	switch val.(type) {
+	case bool:
+		return val.(bool)
+
+	case float64:
+		if val.(float64) != 0 {
+			return true
+		}
+
+	case int:
+		if val.(int) != 0 {
+			return true
+		}
+
+	case string:
+		if val.(string) != "" {
+			return true
+		}
+
+	default:
+		// For any other type, assume they wanted debug mode, since the key/item was provided
+		return true
+	}
+
+	return false
 }
