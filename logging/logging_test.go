@@ -30,7 +30,7 @@ var _ = Describe("config/logging", func() {
 		It("with text output", func() {
 			New().SetFromConfig().Init()
 
-			Expect(buf.String()).To(MatchRegexp("ginkgo.*logging\\.test"))
+			Expect(buf.String()).To(MatchRegexp("logging\\.test"))
 		})
 
 		It("with correct app name and env", func() {
