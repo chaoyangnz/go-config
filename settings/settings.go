@@ -25,8 +25,8 @@ const (
 )
 
 // ReadConfig uses Viper to read the configuration from .config.* files or Env Vars
-// `configFile` is the default config file name
-// `envPrefix` allows you to add a Viper "EnvPrefix" to config env-vars
+// "configFile" is the default config file name
+// "envPrefix" allows you to add a Viper "EnvPrefix" to config env-vars
 // TODO:  list config items
 func ReadConfig(configFile, envPrefix string) {
 	// This means any "." chars in a FQ config name will be replaced with "_"

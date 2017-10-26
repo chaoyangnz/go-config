@@ -1,9 +1,15 @@
 /*
-Package config abstracts configuring the config.logging and config.settings libraries.
+Package "config" provides an abstraction of a common pattern I use for configuring my application.
+This includes configuring logging (via the "Logrus" package) so I can log debug-level information
+around configuration at the same time.
+
+The "config" package is a simple abstraction around the "settings" and "logging" sub-packages.
+
+Initialisation
 
 You're expected to initalise this by calling the Init() function with a Config{}
-struct.  The struct needs to have values set in it for configuring the above
-libraries.  Alternatively, you can set the `FromConfig` setting, and it will
+struct (defined below).  The struct needs to have values set in it for configuring the above
+libraries.  Alternatively, you can enable the "FromConfig" setting, and it will
 try to self-configure via the Viper script.
 */
 package config
@@ -15,29 +21,41 @@ import (
 	"github.com/mexisme/go-config/settings"
 )
 
+/*
+Config provides basic fields for configuring the "settings" and "logging" packages.
+
+"File" is the name of a file that Viper will read for configuration.
+It searches for the file in the user's "$HOME" dir as well as the current working dir.
+
+"EnvPrefix" is a required prefix-string that Viper uses to filter Env-vars
+for settings.
+
+"Debug" enables debug logging if set to "true":
+
+"FromConfig" enables the following settings (Name ... LoggingSentryDsn)
+to be configured via Viper.
+This means it will use the above Config file and appropriate Env-vars
+
+"Name" is the App name, used in log messages
+
+"Environment" is the App's environment it was run in -- e.g. "staging" or "prod"
+
+"Release" is the App's release / version string
+
+"LoggingFormat" sets the log-out format for log messages
+
+"LoggingSentryDsn" is the connection string (DSN) used to send errors to Sentry.io
+*/
 type Config struct {
-	// File is the name of a file that Viper will read for configuration.
-	// It searches for the file in the user's `$HOME` dir as well as the current working dir.
 	File string
-	// EnvPrefix is a required prefix-string that Viper uses to filter Env-vars
-	// for settings.
 	EnvPrefix string
-	// Debug enables debug logging if set to `true`:
 	Debug bool
-	// FromConfig enables the following settings (Name ... LoggingSentryDsn)
-	// to be configured via Viper.
-	// This means it will use the above Config file and appropriate Env-vars
 	FromConfig bool
 
-	// Name is the App name, used in log messages
 	Name string
-	// Environment is the App's environment it was run in -- e.g. "staging" or "prod"
 	Environment string
-	// Release is the App's release / version string
 	Release string
-	// LoggingFormat sets the log-out format for log messages
 	LoggingFormat string
-	// LoggingSentryDsn is the connection string (DSN) used to send errors to Sentry.io
 	LoggingSentryDsn string
 
 	// We don't want to try to reinitialise the config more than once
