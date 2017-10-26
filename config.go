@@ -1,5 +1,4 @@
 /*
-
 Package "config" provides an abstraction of a common pattern I use for configuring my application.
 This includes configuring logging (via the "Logrus" package) so I can log debug-level information
 around configuration at the same time.
@@ -26,12 +25,12 @@ import (
 Config provides basic fields for configuring the "settings" and "logging" packages.
 
 "File" is the name of a file that Viper will read for configuration.
-It searches for the file in the user's `$HOME` dir as well as the current working dir.
+It searches for the file in the user's "$HOME" dir as well as the current working dir.
 
 "EnvPrefix" is a required prefix-string that Viper uses to filter Env-vars
 for settings.
 
-"Debug" enables debug logging if set to `true`:
+"Debug" enables debug logging if set to "true":
 
 "FromConfig" enables the following settings (Name ... LoggingSentryDsn)
 to be configured via Viper.
