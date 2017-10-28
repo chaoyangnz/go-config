@@ -25,10 +25,11 @@ const (
 )
 
 // ReadConfig uses Viper to read the configuration from .config.* files or Env Vars
-// "configFile" is the default config file name
-// "envPrefix" allows you to add a Viper "EnvPrefix" to config env-vars
+// `configFile` is the default config file name
+// `envPrefix` allows you to add a Viper "EnvPrefix" to config env-vars
+// `useOnlyDir` disables looking for a config file in "$HOME" or "." directories.
 // TODO:  list config items
-func ReadConfig(configFile, envPrefix string) {
+func ReadConfig(configFile, configDir, envPrefix string, onlyUseDir bool) {
 	// This means any "." chars in a FQ config name will be replaced with "_"
 	// e.g. "sentry.dsn" --> "$SENTRY_DSN" instead of "$SENTRY.DSN" (which won't work)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -39,10 +40,18 @@ func ReadConfig(configFile, envPrefix string) {
 	viper.BindEnv(ConfigItemDebug)
 	viper.BindEnv(ConfigItemDryRun)
 
-	if configFile != "" {
+	if configFile != "" && !(onlyUseDir && configDir == "") {
 		viper.SetConfigName(configFile)
-		viper.AddConfigPath("$HOME")
-		viper.AddConfigPath(".")
+
+		// Set the config dir's to search for the given file-name.
+		// It selects the first one it finds:
+		if configDir != "" {
+			viper.AddConfigPath(configDir)
+		}
+		if !onlyUseDir {
+			viper.AddConfigPath("$HOME")
+			viper.AddConfigPath(".")
+		}
 
 		if err := viper.ReadInConfig(); err == nil {
 			log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Debug("Using file")

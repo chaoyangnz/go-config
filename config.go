@@ -25,7 +25,15 @@ import (
 Config provides basic fields for configuring the "settings" and "logging" packages.
 
 "File" is the name of a file that Viper will read for configuration.
-It searches for the file in the user's "$HOME" dir as well as the current working dir.
+By default, it searches for the file in the user's `$HOME` dir as well as the current
+workig dir -- but see "OnlyUseDir" below.
+If the file-name is empty, settings won't be loaded from a file (only env-vars).
+
+"Dir" is an optional additional additional dir to search for a config file.
+
+"OnlyUseDir" when false will additionally search "$HOME" and current working dir for
+the config file. When true, will only search in the above "Dir" directory.
+If "Dir" is not given, then the config file won't be loaded.
 
 "EnvPrefix" is a required prefix-string that Viper uses to filter Env-vars
 for settings.
@@ -48,8 +56,11 @@ This means it will use the above Config file and appropriate Env-vars
 */
 type Config struct {
 	File string
+	Dir string
+	OnlyUseDir bool
 	EnvPrefix string
 	Debug bool
+
 	FromConfig bool
 
 	Name string
@@ -100,7 +111,7 @@ func ApplyWith(item string, f func(interface{})) {
 func (s *Config) read() {
 	// This should make it safe to rerun a few times
 	if !s.initConfigDone {
-		settings.ReadConfig(s.File, s.EnvPrefix)
+		settings.ReadConfig(s.File, s.Dir, s.EnvPrefix, s.OnlyUseDir)
 		s.initConfigDone = true
 	}
 }
