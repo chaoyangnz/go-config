@@ -15,6 +15,8 @@ try to self-configure via the Viper script.
 package config
 
 import (
+	"fmt"
+	
 	log "github.com/sirupsen/logrus"
 
 	"github.com/mexisme/go-config/logging"
@@ -63,9 +65,9 @@ type Config struct {
 
 	FromConfig bool
 
-	Name string
-	Environment string
-	Release string
+	Name interface{}
+	Environment interface{}
+	Release interface{}
 	LoggingFormat string
 	LoggingSentryDsn string
 
@@ -116,13 +118,33 @@ func (s *Config) read() {
 	}
 }
 
+// FromStringOrFunc will return a different value depending on the provided val:
+// - If it's a string, provide the given val
+// - If it's a func(), provide teh val returned by the func
+func FromStringOrFunc(val interface{}) (string, error) {
+	switch val.(type) {
+	case string:
+		return val.(string), nil
+	case func() string:
+		f := val.(func() string)
+		return f(), nil
+	}
+
+	return "", fmt.Errorf("Can't read value from %#v", val)
+}
+
 func (s *Config) logging() {
 	s.read()
 
 	// This should make it safe to rerun a few times
 	if !s.logConfigDone {
 		logConfig := logging.New()
-		logConfig.SetAppName(s.Name).SetAppEnv(s.Environment).SetAppRelease(s.Release)
+
+		name, _ := FromStringOrFunc(s.Name)
+		env, _ := FromStringOrFunc(s.Environment)
+		release, _ := FromStringOrFunc(s.Release)
+
+		logConfig.SetAppName(name).SetAppEnv(env).SetAppRelease(release)
 		logConfig.SetFormat(s.LoggingFormat).SetSentryDsn(s.LoggingSentryDsn)
 
 		if s.FromConfig {
