@@ -103,8 +103,6 @@ func DryRun(reason string, args ...interface{}) bool {
 
 // AddConfigItems passes the configItems through to settings.AddConfigItems()
 func AddConfigItems(configItems []string) {
-	// Need to ensure the system has been configured at least once!
-	config.read() // TODO: Viper dynamically reads -- this may not be needed.
 	settings.AddConfigItems(configItems)
 }
 

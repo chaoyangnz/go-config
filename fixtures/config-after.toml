@@ -1,0 +1,4 @@
+debug = true
+
+[test-after]
+test_str = "wootles"
