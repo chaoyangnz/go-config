@@ -46,11 +46,14 @@ for settings.
 to be configured via Viper.
 This means it will use the above Config file and appropriate Env-vars
 
-"Name" is the App name, used in log messages
+"Name" is the App name, used in log messages.
+This can be a string, or a func ref that will return a string.
 
 "Environment" is the App's environment it was run in -- e.g. "staging" or "prod"
+This can be a string, or a func ref that will return a string.
 
 "Release" is the App's release / version string
+This can be a string, or a func ref that will return a string.
 
 "LoggingFormat" sets the log-out format for log messages
 
