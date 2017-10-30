@@ -16,7 +16,7 @@ package config
 
 import (
 	"fmt"
-	
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/mexisme/go-config/logging"
