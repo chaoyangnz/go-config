@@ -23,6 +23,8 @@ in the run-time of a tool, and there was interdependence in a few places, e.g. e
 
 ## By Example
 
+The [godoc doc's](https://godoc.org/github.com/mexisme/go-config) are the definitive guide, but a few simple exmples are:
+
 Importing it:
 ```go
 import "github.com/mexisme/go-config"
