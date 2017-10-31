@@ -15,6 +15,8 @@ try to self-configure via the Viper script.
 package config
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/mexisme/go-config/logging"
@@ -44,11 +46,14 @@ for settings.
 to be configured via Viper.
 This means it will use the above Config file and appropriate Env-vars
 
-"Name" is the App name, used in log messages
+"Name" is the App name, used in log messages.
+This can be a string, or a func ref that will return a string.
 
 "Environment" is the App's environment it was run in -- e.g. "staging" or "prod"
+This can be a string, or a func ref that will return a string.
 
 "Release" is the App's release / version string
+This can be a string, or a func ref that will return a string.
 
 "LoggingFormat" sets the log-out format for log messages
 
@@ -63,9 +68,9 @@ type Config struct {
 
 	FromConfig bool
 
-	Name string
-	Environment string
-	Release string
+	Name interface{}
+	Environment interface{}
+	Release interface{}
 	LoggingFormat string
 	LoggingSentryDsn string
 
@@ -98,8 +103,6 @@ func DryRun(reason string, args ...interface{}) bool {
 
 // AddConfigItems passes the configItems through to settings.AddConfigItems()
 func AddConfigItems(configItems []string) {
-	// Need to ensure the system has been configured at least once!
-	config.read() // TODO: Viper dynamically reads -- this may not be needed.
 	settings.AddConfigItems(configItems)
 }
 
@@ -116,13 +119,33 @@ func (s *Config) read() {
 	}
 }
 
+// FromStringOrFunc will return a different value depending on the provided val:
+// - If it's a string, provide the given val
+// - If it's a func(), provide teh val returned by the func
+func FromStringOrFunc(val interface{}) (string, error) {
+	switch val.(type) {
+	case string:
+		return val.(string), nil
+	case func() string:
+		f := val.(func() string)
+		return f(), nil
+	}
+
+	return "", fmt.Errorf("Can't read value from %#v", val)
+}
+
 func (s *Config) logging() {
 	s.read()
 
 	// This should make it safe to rerun a few times
 	if !s.logConfigDone {
 		logConfig := logging.New()
-		logConfig.SetAppName(s.Name).SetAppEnv(s.Environment).SetAppRelease(s.Release)
+
+		name, _ := FromStringOrFunc(s.Name)
+		env, _ := FromStringOrFunc(s.Environment)
+		release, _ := FromStringOrFunc(s.Release)
+
+		logConfig.SetAppName(name).SetAppEnv(env).SetAppRelease(release)
 		logConfig.SetFormat(s.LoggingFormat).SetSentryDsn(s.LoggingSentryDsn)
 
 		if s.FromConfig {
