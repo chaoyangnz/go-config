@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: 'golang:1.11-alpine'
+    steps:
+      - run: |
+          apk upgrade --no-cache --update
+          apk add --no-cache --update ca-certificates git build-base
+      - checkout
+      - run: |
+          go get -u -v github.com/onsi/ginkgo/ginkgo
+          go mod tidy
+      - run: ginkgo -r -p .
