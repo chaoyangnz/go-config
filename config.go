@@ -101,16 +101,6 @@ func DryRun(reason string, args ...interface{}) bool {
 	return dryRun
 }
 
-// AddConfigItems passes the configItems through to settings.AddConfigItems()
-func AddConfigItems(configItems []string) {
-	settings.AddConfigItems(configItems)
-}
-
-// ApplyWith passes the configItems through to settings.ApplyWith()
-func ApplyWith(item string, f func(interface{})) {
-	settings.ApplyWith(item, f)
-}
-
 func (s *Config) read() {
 	// This should make it safe to rerun a few times
 	if !s.initConfigDone {
