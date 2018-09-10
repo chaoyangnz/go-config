@@ -60,18 +60,18 @@ This can be a string, or a func ref that will return a string.
 "LoggingSentryDsn" is the connection string (DSN) used to send errors to Sentry.io
 */
 type Config struct {
-	File string
-	Dir string
+	File       string
+	Dir        string
 	OnlyUseDir bool
-	EnvPrefix string
-	Debug bool
+	EnvPrefix  string
+	Debug      bool
 
 	FromConfig bool
 
-	Name interface{}
-	Environment interface{}
-	Release interface{}
-	LoggingFormat string
+	Name             interface{}
+	Environment      interface{}
+	Release          interface{}
+	LoggingFormat    string
 	LoggingSentryDsn string
 
 	// We don't want to try to reinitialise the config more than once

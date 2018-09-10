@@ -13,8 +13,8 @@ var _ = Describe("config", func() {
 			valInternal := ""
 
 			Init(Config{
-				File: "config-after",
-				Dir: "fixtures",
+				File:       "config-after",
+				Dir:        "fixtures",
 				FromConfig: true,
 			})
 

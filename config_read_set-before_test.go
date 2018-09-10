@@ -15,8 +15,8 @@ var _ = Describe("config", func() {
 			AddConfigItems([]string{"test-before.test_str"})
 
 			Init(Config{
-				File: "config-before",
-				Dir: "fixtures",
+				File:       "config-before",
+				Dir:        "fixtures",
 				FromConfig: true,
 			})
 
