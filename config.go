@@ -67,6 +67,7 @@ type Config struct {
 	Debug      bool
 
 	FromConfig bool
+	AutoBindEnv bool
 
 	Name             interface{}
 	Environment      interface{}
@@ -104,7 +105,7 @@ func DryRun(reason string, args ...interface{}) bool {
 func (s *Config) read() {
 	// This should make it safe to rerun a few times
 	if !s.initConfigDone {
-		settings.ReadConfig(s.File, s.Dir, s.EnvPrefix, s.OnlyUseDir)
+		settings.ReadConfig(s.File, s.Dir, s.EnvPrefix, s.OnlyUseDir, s.AutoBindEnv)
 		s.initConfigDone = true
 	}
 }

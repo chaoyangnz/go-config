@@ -29,7 +29,7 @@ const (
 // `envPrefix` allows you to add a Viper "EnvPrefix" to config env-vars
 // `useOnlyDir` disables looking for a config file in "$HOME" or "." directories.
 // TODO:  list config items
-func ReadConfig(configFile, configDir, envPrefix string, onlyUseDir bool) {
+func ReadConfig(configFile, configDir, envPrefix string, onlyUseDir bool, autoBindEnv bool) {
 	// This means any "." chars in a FQ config name will be replaced with "_"
 	// e.g. "sentry.dsn" --> "$SENTRY_DSN" instead of "$SENTRY.DSN" (which won't work)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -55,7 +55,11 @@ func ReadConfig(configFile, configDir, envPrefix string, onlyUseDir bool) {
 
 		if err := viper.ReadInConfig(); err == nil {
 			log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Debug("Using file")
-
+			if autoBindEnv {
+				for _, key := range viper.AllKeys() {
+					viper.BindEnv(key)
+				}
+			}
 		} else {
 			log.WithFields(log.Fields{"config_file": viper.ConfigFileUsed()}).Error(err)
 		}
